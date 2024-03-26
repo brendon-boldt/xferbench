@@ -1,0 +1,26 @@
+name: xferbench
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - accelerate
+  - black
+  - datasets
+  - evaluate
+  - joblib
+  - matplotlib
+  - mypy
+  - pandas
+  - pandas-stubs
+  - pydantic>=2.0
+  - python
+  - pytorch
+  - pytorch-cuda
+  - scipy
+  - tensorboard
+  - torchaudio
+  - torchvision
+  - transformers
+  - zstandard
+  - sacrebleu
