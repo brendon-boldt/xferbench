@@ -9,6 +9,6 @@ Install the conda environment.
 
 Run the benchmark
 
-    python -m xferbench path/to/tokens.jsonl
+    python -m xferbench some-directory/my_dataset/tokens.jsonl
 
-Output will be in `output/run_name/results.json`.
+Output will be in `save-clm/xferbench-my_dataset_tokens/results.json`.
