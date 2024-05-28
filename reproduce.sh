@@ -20,8 +20,8 @@ set -x
 
 
 ### Setting up data ###
-# Assumes you've downloaded data.tar.gz from the supplementary material.
-tar xf data.tar.gz
+wget http://patient.lti.cs.cmu.edu:12001/xferbench-paper-data.tar.gz
+tar xf xferbench-paper-data.tar.gz
 # zstd is required to decompress some of the baseline datasets.
 type zstd
 # Decompress all zst archives
