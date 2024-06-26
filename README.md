@@ -1,3 +1,4 @@
+![XferBench logo](./assets/logo.svg)
 XferBench
 =========
 
