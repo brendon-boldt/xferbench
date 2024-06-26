@@ -1,11 +1,28 @@
 from pathlib import Path
+import argparse
 
 import datasets  # type: ignore
+
+ap = argparse.ArgumentParser()
+ap.add_argument(
+    "which",
+    type=str,
+    choice=["eval", "all"],
+    help='Which data split to download; either "eval" for the languages necessary to run XferBench or "all" for the eval languages and the baseline natural languages.',
+)
+args = ap.parse_args()
 
 
 ds_path = "wikimedia/wikipedia"
 make_ds_name = lambda l: f"20231101.{l}"
-baseline_langs = ["fr", "es", "ru", "zh", "ar", "hi", "ko"]
+match args.which:
+    case "eval":
+        baseline_langs = []
+    case "all":
+        baseline_langs = ["fr", "es", "ru", "zh", "ar", "hi", "ko"]
+    case _:
+        raise ValueError()
+
 eval_langs = ["da", "eu", "fa", "fi", "he", "id", "ja", "kk", "ro", "ur"]
 
 

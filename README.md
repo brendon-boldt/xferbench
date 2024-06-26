@@ -16,9 +16,15 @@ XferBench works.
 
 ## Quick Start
 
+Looking to directly reproduce the results of the NAACL 2024 paper?  See `./reproduce.sh`.  Continue reading for a description of the steps to run XferBench in general.
+
 Install the conda environment.
 
     conda create --name xferbench --file environment.txt
+
+Download the target language data (required to run XferBench) with:
+
+    python xferbench/scripts/wikipedia.py eval
 
 Ensure your data is in the JSON lines format where each row is an array of
 integer tokens, representing an utterance from the emergent communication
@@ -35,7 +41,18 @@ Then, run the benchmark on the corpus file.
 Output will be in `save-clm/xferbench-my_dataset_corpus/results.json`.
 
 
-### Citation
+### Where to get data
+
+Don't have any data to try XferBench with?  No problem!  A tarball of the data
+used in the original data can be downloaded
+[here](http://patient.lti.cs.cmu.edu:12001/xferbench-paper-data.tar.gz).  We
+encourage you, though, to check out
+[ELCC](https://huggingface.co/datasets/bboldt/elcc) which is a more
+comprehensive collection of emergent language corpora with accompanying
+metadata.
+
+
+## Citation
 
 If using this work in research please cite the paper:
 
