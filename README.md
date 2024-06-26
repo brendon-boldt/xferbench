@@ -17,7 +17,9 @@ XferBench works.
 
 ## Quick Start
 
-Looking to directly reproduce the results of the NAACL 2024 paper?  See `./reproduce.sh`.  Continue reading for a description of the steps to run XferBench in general.
+Looking to directly reproduce the results of the NAACL 2024 paper?  See
+`./reproduce.sh`.  Continue reading for a description of the steps to run
+XferBench in general.
 
 Install the conda environment.
 
