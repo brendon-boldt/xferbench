@@ -11,6 +11,7 @@ better that an emergent language serves as pretraining data for a human
 language-based downstream task, the more similar it is to human language from
 a neural network's perspective.  Below we include a digram describing how
 XferBench works.
+
 ![Benchmark architecture](./assets/benchmark-chart.svg)
 
 
