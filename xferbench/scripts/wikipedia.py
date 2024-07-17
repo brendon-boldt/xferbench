@@ -7,7 +7,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument(
     "which",
     type=str,
-    choice=["eval", "all"],
+    choices=["eval", "all"],
     help='Which data split to download; either "eval" for the languages necessary to run XferBench or "all" for the eval languages and the baseline natural languages.',
 )
 args = ap.parse_args()
