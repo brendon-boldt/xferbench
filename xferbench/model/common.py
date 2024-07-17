@@ -85,6 +85,9 @@ def get_tokenized_dataset(
             pass
 
     block_size = model_cfg.context_length
+    # This is just the number of examples per batch during the dataset.map()
+    # operation.  It is not related to any hyperparameters in the model.
+    map_batch_size = 1000
 
     task_is_lm = False
 
@@ -129,7 +132,12 @@ def get_tokenized_dataset(
                     f"Dataset was not large enough to satisfy target token requirement ({dataset_length} < {n_tokens_target})"
                 )
 
-            n_repeats = n_tokens_target // dataset_length + 2
+            # During processing, at most block_size - 1 will be truncated per batch.
+            max_truncated_tokens = (len(dataset) // map_batch_size + 1) * (
+                block_size - 1
+            )
+            # Assume the worst case scenario where every batch truncates (block_size - 1) tokens.
+            n_repeats = n_tokens_target // (dataset_length - max_truncated_tokens) + 1
             print(f"WARNING: dataset too small; repeating {n_repeats} times")
             ds_list = [dataset.shuffle(seed=i) for i in range(n_repeats)]
             dataset = datasets.concatenate_datasets(ds_list)
@@ -156,7 +164,10 @@ def get_tokenized_dataset(
         # to maximize effeciency.
         _dataset = dataset
         dataset = dataset.map(
-            to_blocks, batched=True, remove_columns=list(dataset.features.keys())
+            to_blocks,
+            batched=True,
+            remove_columns=list(dataset.features.keys()),
+            batch_size=map_batch_size,
         )
 
     if n_tokens_target is not None:
@@ -172,7 +183,10 @@ def get_tokenized_dataset(
                 hi = idx
         dataset = dataset.select(range(hi))
 
-    assert n_tokens_target is None or sum(dataset["length"]) >= n_tokens_target
+    if not (n_tokens_target is None or sum(dataset["length"]) >= n_tokens_target):
+        raise ValueError(
+            "Dataset was not large enough after repetition. The input dataset was likely not repeated enough times. This is an implementation error."
+        )
 
     if cache:
         dataset.save_to_disk(tokenized_path)
