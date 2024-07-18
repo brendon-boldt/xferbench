@@ -27,6 +27,7 @@ class RunConfig(PydanticModel):
     unit_test: bool = False
     save_prefix: str | None = None
     config: str | None = None
+    cpu_ok: bool = False
 
 
 ModelClass = TypeVar("ModelClass", bound=config.Model)
