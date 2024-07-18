@@ -75,7 +75,7 @@ class Clm(Model):
     tokenizer_class: TokenizerClass = transformers.GPT2TokenizerFast
 
 
-class ModelTest(Model):
+class ModelTest(pydantic.BaseModel):
     vocab_size: int = 1 << 10
     context_length: int = 1 << 6
     n_train_epochs: int = 1
@@ -88,7 +88,7 @@ class ModelTest(Model):
     tune_dataset_size: int = 20
 
 
-class ClmTest(Clm, ModelTest):
+class ClmTest(ModelTest, Clm):
     n_head: int = 2
     n_layer: int = 2
 
