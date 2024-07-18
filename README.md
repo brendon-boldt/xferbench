@@ -23,7 +23,7 @@ XferBench in general.
 
 Install the conda environment.
 
-    conda create --name xferbench --file environment.txt
+    conda create --file environment.yml
 
 Download the target language data (required to run XferBench) with:
 
