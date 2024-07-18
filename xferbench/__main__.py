@@ -1,6 +1,12 @@
 import argparse
 import sys
 from pathlib import Path
+import os
+
+# Ensure that multiple GPUs are not visible since HuggingFace will
+# automatically use mutliple GPUs and cause problems.
+_cuda_devs = os.environ.get("CUDA_VISIBLE_DEVICES", "0")
+os.environ["CUDA_VISIBLE_DEVICES"] = _cuda_devs.split(",")[0]
 
 from . import run, analysis
 

@@ -148,7 +148,7 @@ def compute_model_score(*, data_path: Path, model_cfg: config.Clm) -> None:
     raw_dataset = raw_dataset.train_test_split(seed=0, test_size=0.1)["test"]
     raw_dataset = raw_dataset.select(range(min(len(raw_dataset), 10_000)))
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     batch_encodings = tokenizer(raw_dataset["text"])
     target_tokens = 1_000_000
