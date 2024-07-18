@@ -56,7 +56,6 @@ metadata.
 
 
 ## FAQs
-
 - Does XferBench support multiple GPUs?
     - No.  While HuggingFace should do it for free, it doesn't work.  Plus, the
       typical workflow of XferBench means it is typically easier to run it on
@@ -67,6 +66,8 @@ metadata.
       `xferbench/__main__.py` has some code to prevent this, but if you are
       say, importing modules from XferBench, this will not take effect.  Using
       `CUDA_VISIBLE_DEVICES=0 python ...` is the easiest way to prevent this.
+- Why is XferBench failing because of mismatching tensor shapes?
+    - XferBench aggressively caches tokenizers, models, datasets, etc. in the `save-*/` directories. If you have changed one of the model config parameters, it could be loading an old model with incompatible parameters.  Try removing the relevant cached files from the directories under `save-*/`.
 
 ## Citation
 
