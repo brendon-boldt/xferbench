@@ -55,6 +55,19 @@ comprehensive collection of emergent language corpora with accompanying
 metadata.
 
 
+## FAQs
+
+- Does XferBench support multiple GPUs?
+    - No.  While HuggingFace should do it for free, it doesn't work.  Plus, the
+      typical workflow of XferBench means it is typically easier to run it on
+      different inputs in parallel instead of speeding up a single run.
+- Why is CUDA unexpectedly OOMing?
+    - Many things could be to blame, but one known problem is if HuggingFace
+      can see multiple GPUs and tries to use more than one of them.
+      `xferbench/__main__.py` has some code to prevent this, but if you are
+      say, importing modules from XferBench, this will not take effect.  Using
+      `CUDA_VISIBLE_DEVICES=0 python ...` is the easiest way to prevent this.
+
 ## Citation
 
 If using this work in research please cite the paper:
