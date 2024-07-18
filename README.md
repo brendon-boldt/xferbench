@@ -56,6 +56,9 @@ metadata.
 
 
 ## FAQs
+- Do I need a GPU to run XferBench?
+    - In practice, yes.  XferBench takes about 6 hours on an RTX 2080 Ti and
+      probably closer to 60 hours on a fast CPU.
 - Does XferBench support multiple GPUs?
     - No.  While HuggingFace should do it for free, it doesn't work.  Plus, the
       typical workflow of XferBench means it is typically easier to run it on
