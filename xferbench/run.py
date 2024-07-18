@@ -337,8 +337,13 @@ def mlm_tune_model(rc: RunConfig) -> None:
     )
 
 
-def get_eval_langs(base_data_path: Path) -> list[str]:
-    return [p.name for p in (base_data_path / "eval").glob("*/")]
+def check_eval_langs(base_data_path: Path) -> None:
+    paths = [base_data_path / "eval" / l for l in config.target_languages]
+    for p in paths:
+        if not p.exists():
+            raise FileNotFoundError(
+                f"Cannot find evaluation language at data {p}. Ensure that you have run xferbench/scripts/wikipedia.py to download the evaluation languages."
+            )
 
 
 def benchmark(rc: RunConfig) -> None:
@@ -349,6 +354,7 @@ def benchmark(rc: RunConfig) -> None:
         source_data_path = Path(rc.command)
 
     env = get_env(rc, "clm")
+    check_eval_langs(env.base_data_path)
 
     name = f"{source_data_path.parents[0].name}_{source_data_path.stem}"
 
@@ -368,7 +374,7 @@ def benchmark(rc: RunConfig) -> None:
         model_cfg=base_model_cfg,
         data_path=source_data_path,
     )
-    for el in get_eval_langs(env.base_data_path):
+    for el in config.target_languages:
         tune_tokenizer_path = env.base_save_path / f"{el}-tokenizer" / "tokenizer.json"
         tune_model_cfg = env.model_class(
             tokenizer_path=tune_tokenizer_path,
