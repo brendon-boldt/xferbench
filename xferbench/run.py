@@ -2,6 +2,7 @@ import json
 from typing import Literal, cast, overload, Generic, TypeVar, Any
 from pathlib import Path
 import re
+import shutil
 
 import pydantic
 import torch
@@ -402,6 +403,9 @@ def benchmark(rc: RunConfig) -> None:
             model_cfg=score_model_cfg,
             data_path=tune_data_path,
         )
+
+        for p in tune_model_cfg.save_path.glob("checkpoint-*"):
+            shutil.rmtree(p)
 
     summary: dict[str, Any] = {"by_target": {}}
     for path in base_source_save_path.glob("**/result.txt"):
