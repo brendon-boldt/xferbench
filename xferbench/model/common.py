@@ -56,6 +56,41 @@ def get_checkpoint(model_source_base: str | Path) -> str:
     return sorted(checkpoints, key=key)[-1]
 
 
+def get_encoder(tokenizer: Any, block_size: int) -> Callable:
+    # Ensure that any parameters of get_encoder inside of encode (i.e.,
+    # closures) will hash the same so as not to break cachine.
+    def encode(examples: Any) -> dict:
+        if "text" in examples:
+            examples = tokenizer(
+                examples["text"],
+                return_special_tokens_mask=False,
+                return_length=True,
+                # max_length=block_size,
+                truncation=False,
+            )
+        elif "source_text" in examples:
+            examples = tokenizer(
+                examples["source_text"],
+                text_target=examples["target_text"],
+                return_special_tokens_mask=True,
+                return_length=True,
+                max_length=block_size,
+                truncation=True,
+                padding=False,
+            )
+        task_is_lm = "labels" not in examples
+
+        if task_is_lm:
+            _examples = {}
+            _examples["input_ids"] = examples["input_ids"]
+            _examples["length"] = [len(x) for x in examples["input_ids"]]
+            examples = _examples
+
+        return examples
+
+    return encode
+
+
 def get_tokenized_dataset(
     model_cfg: config.Model,
     raw_dataset: datasets.arrow_dataset.Dataset,
@@ -91,35 +126,7 @@ def get_tokenized_dataset(
 
     task_is_lm = False
 
-    def encode(examples: Any) -> dict:
-        if "text" in examples:
-            examples = tokenizer(
-                examples["text"],
-                return_special_tokens_mask=False,
-                return_length=True,
-                # max_length=model_cfg.context_length,
-                truncation=False,
-            )
-        elif "source_text" in examples:
-            examples = tokenizer(
-                examples["source_text"],
-                text_target=examples["target_text"],
-                return_special_tokens_mask=True,
-                return_length=True,
-                max_length=model_cfg.context_length,
-                truncation=True,
-                padding=False,
-            )
-        task_is_lm = "labels" not in examples
-
-        if task_is_lm:
-            _examples = {}
-            _examples["input_ids"] = examples["input_ids"]
-            _examples["length"] = [len(x) for x in examples["input_ids"]]
-            examples = _examples
-
-        return examples
-
+    encode = get_encoder(tokenizer, block_size)
     dataset = raw_dataset.map(
         encode, batched=True, remove_columns=list(raw_dataset.features.keys())
     )
