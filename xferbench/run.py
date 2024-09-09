@@ -354,10 +354,16 @@ def benchmark(rc: RunConfig) -> None:
     else:
         source_data_path = Path(rc.command)
 
+    if source_data_path == Path("/dev/null"):
+        source_data_path = None
+
     env = get_env(rc, "clm")
     check_eval_langs(env.base_data_path)
 
-    name = f"{source_data_path.parents[0].name}_{source_data_path.stem}"
+    if source_data_path is None:
+        name = f"no-pretrain"
+    else:
+        name = f"{source_data_path.parents[0].name}_{source_data_path.stem}"
 
     base_source_save_path = env.base_save_path / f"xferbench-{name}"
 
@@ -367,10 +373,11 @@ def benchmark(rc: RunConfig) -> None:
     )
     base_model_cfg.save()
 
-    clm.init_model(
-        model_cfg=base_model_cfg,
-        data_path=source_data_path,
-    )
+    if source_data_path is not None:
+        clm.init_model(
+            model_cfg=base_model_cfg,
+            data_path=source_data_path,
+        )
     clm.train_base_model(
         model_cfg=base_model_cfg,
         data_path=source_data_path,
