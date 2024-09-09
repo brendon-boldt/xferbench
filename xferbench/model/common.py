@@ -228,7 +228,9 @@ def _get_raw_dataset_from_lines(path: Path) -> datasets.arrow_dataset.Dataset:
 
     with path.open() as fo:
         data = json.loads(fo.readline())
-        dtype = type(data[0])
+        # Eventually, we should make that utterances cannot be length zero or
+        # handle this properly
+        dtype = type(data[0] if len(data) else 0)
         if not isinstance(data, dict):
             tfo = tempfile.NamedTemporaryFile("w")
             path = Path(tfo.name)
