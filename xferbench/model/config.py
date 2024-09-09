@@ -74,6 +74,16 @@ class Clm(Model):
     n_layer: int = 6
     tokenizer_class: TokenizerClass = transformers.GPT2TokenizerFast
 
+class ClmSmallVocab(Clm):
+    vocab_size: int = 1 << 14
+
+
+class ClmOld(Clm):
+    train_learning_rate: float = 2e-5
+    # Untested; previously was 2e-5
+    tune_learning_rate: float = 2e-5
+    vocab_size: int = 1 << 14
+
 
 class ModelTest(pydantic.BaseModel):
     vocab_size: int = 1 << 10
