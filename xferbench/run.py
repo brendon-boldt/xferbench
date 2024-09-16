@@ -7,7 +7,8 @@ import shutil
 import pydantic
 import torch
 
-from .model import config, mt, clm, mlm
+from .model import config, mt, clm, mlm, common
+import elcc_analysis
 
 
 class PydanticModel(pydantic.BaseModel):
@@ -427,7 +428,49 @@ def benchmark(rc: RunConfig) -> None:
     print(f"XferBench score: {summary['score']:.3f}")
     with (base_source_save_path / "final-score.txt").open("w") as fo:
         fo.write(str(summary["score"]))
+
+
+    summary["anaylsis"] = generate_elcc_analysis()
+    
     results_path = base_source_save_path / "results.json"
     with results_path.open("w") as fo:
         json.dump(summary, fo, indent=2)
     print(f'Results summary in "{results_path}".')
+
+
+
+def generate_elcc_analysis() -> dict:
+    # TODO
+
+    tokenizer = load_tokenizer(model_cfg)
+    raw_dataset = common.get_raw_dataset(data_path)
+    raw_dataset.shuffle(seed=0)
+
+    # If we're dealing with the Wikipedia dataset
+    if "title" in raw_dataset.features:
+        raw_dataset = raw_dataset.select(range(min(len(raw_dataset), 15_000)))
+
+    dataset = common.get_tokenized_dataset(
+        model_cfg,
+        raw_dataset,
+        tokenizer=tokenizer,
+        n_tokens_target=model_cfg.train_dataset_size,
+        save_path=model_cfg.save_path,
+        cache=True,
+        fail_on_too_small=False,
+    )
+
+    ####
+    paths = list(Path("./systems").glob("*/data/**/corpus.jsonl"))
+    funcs = [joblib.delayed(analyze_data)(path) for path in paths]
+    parallel = joblib.Parallel(n_jobs=-1, return_as="generator")(funcs)
+    results = list(tqdm(parallel, total=len(funcs)))
+    results = [x for x in results if x is not None]
+
+    for p, r in zip(paths, results):
+        r["name"] = path_to_name(p)
+
+    df = pd.DataFrame(results)
+    df.set_index("name", inplace=True)
+    df.to_csv("table.csv")
+
