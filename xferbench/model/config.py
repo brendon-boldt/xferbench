@@ -1,11 +1,36 @@
-from typing import Any, cast
+from typing import Literal, cast, overload, Generic, TypeVar, Any
 from pathlib import Path
 import sys
 
 import transformers  # type: ignore
 import pydantic
 
-target_languages = [
+class PydanticModel(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(protected_namespaces=())
+
+
+class RunConfig(PydanticModel):
+    """Interface for executing an action.
+
+    This is inteded to be useable from the command line via argparse,
+    programmatically via Python, or from JSON config files.
+    """
+
+    command: str = "default"
+    source: str | None = None
+    target: str | None = None
+    overwrite: bool = False
+    unit_test: bool = False
+    save_prefix: str | None = None
+    config: str | None = None
+    cpu_ok: bool = False
+
+
+
+Task = Literal["clm", "mt", "mlm"]
+
+
+_target_languages = [
     "da",
     "eu",
     "fa",
@@ -17,6 +42,12 @@ target_languages = [
     "ro",
     "ur",
 ]
+
+def get_target_languages(rc: RunConfig) -> list[str]:
+    if rc.unit_test:
+        return ["eval1", "eval2"]
+    else:
+        return _target_languages
 
 TokenizerClass = type[transformers.PreTrainedTokenizerFast]
 
@@ -66,6 +97,19 @@ class Model(pydantic.BaseModel):
             return eval(v)
         else:
             return v
+
+
+ModelClass = TypeVar("ModelClass", bound=Model)
+
+
+class RunEnvironment(PydanticModel, Generic[ModelClass]):
+    """Computed values based on the provided `RunConfig`."""
+
+    base_save_path: Path
+    base_data_path: Path
+    model_class: type[ModelClass]
+
+
 
 
 class Clm(Model):

@@ -6,44 +6,13 @@ import shutil
 
 import pydantic
 import torch
+import joblib  # type: ignore
+from tqdm import tqdm
+import numpy as np
 
 from .model import config, mt, clm, mlm, common
-import elcc_analysis
-
-
-class PydanticModel(pydantic.BaseModel):
-    model_config = pydantic.ConfigDict(protected_namespaces=())
-
-
-class RunConfig(PydanticModel):
-    """Interface for executing an action.
-
-    This is inteded to be useable from the command line via argparse,
-    programmatically via Python, or from JSON config files.
-    """
-
-    command: str = "default"
-    source: str | None = None
-    target: str | None = None
-    overwrite: bool = False
-    unit_test: bool = False
-    save_prefix: str | None = None
-    config: str | None = None
-    cpu_ok: bool = False
-
-
-ModelClass = TypeVar("ModelClass", bound=config.Model)
-
-
-class RunEnvironment(PydanticModel, Generic[ModelClass]):
-    """Computed values based on the provided `RunConfig`."""
-
-    base_save_path: Path
-    base_data_path: Path
-    model_class: type[ModelClass]
-
-
-Task = Literal["clm", "mt", "mlm"]
+from .model.config import RunConfig, Task, RunEnvironment
+import elcc_analysis.metric
 
 
 @overload
@@ -340,7 +309,7 @@ def mlm_tune_model(rc: RunConfig) -> None:
 
 
 def check_eval_langs(base_data_path: Path) -> None:
-    paths = [base_data_path / "eval" / l for l in config.target_languages]
+    paths = [base_data_path / "eval" / l for l in config._target_languages]
     for p in paths:
         if not p.exists():
             raise FileNotFoundError(
@@ -351,7 +320,7 @@ def check_eval_langs(base_data_path: Path) -> None:
 def benchmark(rc: RunConfig) -> None:
     if rc.command == "benchmark":
         assert rc.source is not None
-        source_data_path = Path(rc.source)
+        source_data_path: Path | None = Path(rc.source)
     else:
         source_data_path = Path(rc.command)
 
@@ -359,7 +328,8 @@ def benchmark(rc: RunConfig) -> None:
         source_data_path = None
 
     env = get_env(rc, "clm")
-    check_eval_langs(env.base_data_path)
+    if not rc.unit_test:
+        check_eval_langs(env.base_data_path)
 
     if source_data_path is None:
         name = f"no-pretrain"
@@ -383,7 +353,7 @@ def benchmark(rc: RunConfig) -> None:
         model_cfg=base_model_cfg,
         data_path=source_data_path,
     )
-    for el in config.target_languages:
+    for el in config.get_target_languages(rc):
         tune_tokenizer_path = env.base_save_path / f"{el}-tokenizer" / "tokenizer.json"
         tune_model_cfg = env.model_class(
             tokenizer_path=tune_tokenizer_path,
@@ -429,21 +399,18 @@ def benchmark(rc: RunConfig) -> None:
     with (base_source_save_path / "final-score.txt").open("w") as fo:
         fo.write(str(summary["score"]))
 
+    if source_data_path is not None:
+        summary["anaylsis"] = generate_elcc_analysis(base_model_cfg, source_data_path)
 
-    summary["anaylsis"] = generate_elcc_analysis()
-    
     results_path = base_source_save_path / "results.json"
     with results_path.open("w") as fo:
         json.dump(summary, fo, indent=2)
     print(f'Results summary in "{results_path}".')
 
 
-
-def generate_elcc_analysis() -> dict:
-    # TODO
-
-    tokenizer = load_tokenizer(model_cfg)
-    raw_dataset = common.get_raw_dataset(data_path)
+def generate_elcc_analysis(model_cfg: config.Clm, source_data_path: Path) -> dict:
+    tokenizer = clm.load_tokenizer(model_cfg)
+    raw_dataset = common.get_raw_dataset(source_data_path)
     raw_dataset.shuffle(seed=0)
 
     # If we're dealing with the Wikipedia dataset
@@ -459,18 +426,7 @@ def generate_elcc_analysis() -> dict:
         cache=True,
         fail_on_too_small=False,
     )
-
-    ####
-    paths = list(Path("./systems").glob("*/data/**/corpus.jsonl"))
-    funcs = [joblib.delayed(analyze_data)(path) for path in paths]
-    parallel = joblib.Parallel(n_jobs=-1, return_as="generator")(funcs)
-    results = list(tqdm(parallel, total=len(funcs)))
-    results = [x for x in results if x is not None]
-
-    for p, r in zip(paths, results):
-        r["name"] = path_to_name(p)
-
-    df = pd.DataFrame(results)
-    df.set_index("name", inplace=True)
-    df.to_csv("table.csv")
-
+    # TODO cache logic
+    data_np = list(np.array(dataset["input_ids"]))
+    registry = elcc_analysis.metric.metric_registry
+    return dict(kv for f in registry for kv in f(data_np).items())
