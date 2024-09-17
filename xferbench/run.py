@@ -400,7 +400,7 @@ def benchmark(rc: RunConfig) -> None:
         fo.write(str(summary["score"]))
 
     if source_data_path is not None:
-        summary["anaylsis"] = generate_elcc_analysis(base_model_cfg, source_data_path)
+        summary["analysis"] = generate_elcc_analysis(base_model_cfg, source_data_path)
 
     results_path = base_source_save_path / "results.json"
     with results_path.open("w") as fo:
