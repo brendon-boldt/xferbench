@@ -18,6 +18,7 @@ VOCAB_SIZE = 30_000 - 10
 alpha = 1
 beta = 2.7
 
+
 def main() -> None:
     data = np.empty((N_TOKENS // CONTEXT_SIZE + 1) * CONTEXT_SIZE, dtype=np.int32)
 
@@ -48,6 +49,7 @@ def main() -> None:
 
     ds = datasets.Dataset.from_dict({"input_ids": data})
     ds.save_to_disk(f"data/var/dyck-seed-{seed}")
+
 
 if __name__ == "__main__":
     main()

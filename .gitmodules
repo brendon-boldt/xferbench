@@ -1,0 +1,3 @@
+[submodule "elcc"]
+	path = elcc
+	url = https://huggingface.co/datasets/bboldt/elcc

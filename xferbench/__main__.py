@@ -21,6 +21,7 @@ parser.add_argument("--target", "-t", type=str)
 parser.add_argument("--unit-test", action="store_true")
 parser.add_argument("--overwrite", action="store_true")
 parser.add_argument("--save-prefix", "--save", type=str)
+parser.add_argument("--extra-name", type=str)
 parser.add_argument(
     "--config",
     "-c",
