@@ -3,3 +3,5 @@ __pycache__/
 /save-*/
 /data
 .envrc
+unit-test/save-clm/
+.mypy_cache/
