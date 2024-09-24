@@ -48,7 +48,7 @@ def main() -> None:
     data = data.reshape(-1, CONTEXT_SIZE)
 
     ds = datasets.Dataset.from_dict({"input_ids": data})
-    ds.save_to_disk(f"data/var/dyck-seed-{seed}")
+    ds.save_to_disk(f"data/baselines/pz_syn")
 
 
 if __name__ == "__main__":
