@@ -100,6 +100,7 @@ def get_tokenized_dataset(
     save_path: Path | None = None,
     cache: bool = False,
     fail_on_too_small: bool = True,
+    no_blocks: bool = False,
 ) -> Any:
     """
 
@@ -108,6 +109,9 @@ def get_tokenized_dataset(
     n_tokens_target: int
         the length of the returned dataset will be as close to
         `n_tokens_target` as possible while being at least that large
+    no_blocks: bool, default False
+        Do not group the dataset into blocks.  Useful if you want to analyze
+        the length of lines, say.
     """
 
     if cache:
@@ -166,7 +170,7 @@ def get_tokenized_dataset(
         result["length"] = [block_size] * len(result["input_ids"])
         return result
 
-    if "labels" not in dataset.features:
+    if "labels" not in dataset.features and not no_blocks:
         # We're doing language modeling, so we can concatenate to block size
         # to maximize effeciency.
         _dataset = dataset

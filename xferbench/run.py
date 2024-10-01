@@ -427,9 +427,10 @@ def generate_elcc_analysis(model_cfg: config.Clm, source_data_path: Path) -> dic
         tokenizer=tokenizer,
         n_tokens_target=None,
         save_path=model_cfg.save_path,
-        cache=True,
+        cache=False,
         fail_on_too_small=False,
+        no_blocks=True,
     )
     # TODO cache logic
-    data_np = list(np.array(dataset["input_ids"]))
+    data_np = list(np.array(x, dtype=np.int32) for x in dataset["input_ids"] if len(x))
     return dict(kv for f in metric_registry for kv in f(data_np).items())
