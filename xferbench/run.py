@@ -12,7 +12,7 @@ import numpy as np
 
 from .model import config, mt, clm, mlm, common
 from .model.config import RunConfig, Task, RunEnvironment
-from elcc.analysis.metric import metric_registry
+from elcc.util.analysis.metric import metric_registry
 
 
 @overload
@@ -334,7 +334,8 @@ def benchmark(rc: RunConfig) -> None:
     if source_data_path is None:
         name = f"no-pretrain"
     else:
-        name = f"{source_data_path.parents[0].name}_{source_data_path.stem}"
+        sdp_name = source_data_path.name.removesuffix(".jsonl")
+        name = f"{source_data_path.parents[0].name}_{sdp_name}"
 
     if rc.extra_name is not None:
         name += f"_{rc.extra_name}"
