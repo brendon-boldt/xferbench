@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-import requests  # type: ignore
+import gdown
 import torch
 
 
@@ -16,9 +16,8 @@ url_paren_real = "https://drive.google.com/u/3/uc?id=15MgZTPY-lOYbeXSmxK-ii6ESqT
 
 def download(url: str, save_path: Path) -> None:
     if not save_path.exists():
-        res = requests.get(url)
-        with save_path.open("wb") as fo:
-            fo.write(res.content)
+        with save_path.open('wb') as fo:
+            gdown.download(url, fo)
 
 
 if __name__ == "__main__":
