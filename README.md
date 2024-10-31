@@ -70,7 +70,28 @@ metadata.
       say, importing modules from XferBench, this will not take effect.  Using
       `CUDA_VISIBLE_DEVICES=0 python ...` is the easiest way to prevent this.
 - Why is XferBench failing because of mismatching tensor shapes?
-    - XferBench aggressively caches tokenizers, models, datasets, etc. in the `save-*/` directories. If you have changed one of the model config parameters, it could be loading an old model with incompatible parameters.  Try removing the relevant cached files from the directories under `save-*/`.
+    - XferBench aggressively caches tokenizers, models, datasets, etc. in the
+      `save-*/` directories. If you have changed one of the model config
+      parameters, it could be loading an old model with incompatible
+      parameters.  Try removing the relevant cached files from the directories
+      under `save-*/`.
+
+
+## Amendment
+
+In the original paper published at NAACL 2024.  The results given did not come
+from the Wikipedia-derived data described in the paper and in the code.
+Instead, it came from an [OSCAR](https://oscar-project.org/)-derived dataset
+that was comparable in other regards to what is described in the paper.  The
+most notable difference between the results is that the range of cross
+entropies changed from a low of 5.2 and high of 5.5 to a low of 5.8 and high of
+6.2.  The relative performance is largely unchanged which is the basis for the
+claims in the paper about XferBench.  Below is the same graphic used in the
+paper with Wikipedia-derived scores (i.e., what you would get running the
+benchmark as described in the repo now).
+
+![Updated XferBench results](./assets/updated-results.png)
+
 
 ## Citation
 
