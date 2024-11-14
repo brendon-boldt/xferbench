@@ -429,7 +429,7 @@ def benchmark_reduced(rc: RunConfig) -> None:
     assert eval_data_path.exists(), f"Cannot find {eval_data_path}"
 
     env.base_save_path.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(dir=env.base_save_path) as tempdir:
+    with tempfile.TemporaryDirectory() as tempdir:
         base_source_save_path = Path(tempdir)
 
         train_save_path = base_source_save_path / "train"
