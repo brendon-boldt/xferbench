@@ -472,7 +472,7 @@ def benchmark_reduced(rc: RunConfig) -> None:
         clm.compute_model_score(
             model_cfg=score_model_cfg,
             data_path=tune_data_path,
-            target_tokens=200_000,
+            target_tokens=1_000_000,
         )
 
         for p in tune_model_cfg.save_path.glob("checkpoint-*"):

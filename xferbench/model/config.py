@@ -138,6 +138,13 @@ class ClmReduced1(Clm):
     n_tune_epochs: int = 2
 
 
+class ClmReduced2(Clm):
+    train_dataset_size: int = 4_000_000
+    tune_dataset_size: int = 1_000_000
+    n_train_epochs: int = 2
+    n_tune_epochs: int = 3
+
+
 class ClmSmallVocab(Clm):
     vocab_size: int = 1 << 14
 
