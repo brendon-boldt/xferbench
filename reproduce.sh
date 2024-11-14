@@ -27,9 +27,11 @@ type zstd
 # Decompress all zst archives
 find data/ -name "*.zst" -exec zstd -dk {} \;
 
-for script in hierarchical_parens.py random_data.py prepare_yao.py wikipedia.py; do
+for script in hierarchical_parens.py random_data.py prepare_yao.py; do
   python xferbench/scripts/$script
 done
+
+python xferbench/scripts/wikipedia.py all
 
 ### XferBench ###
 for target in $(ls data/eval); do
