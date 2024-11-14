@@ -25,8 +25,10 @@ class RunConfig(PydanticModel):
     save_prefix: str | None = None
     config: str | None = None
     cpu_ok: bool = False
+    danish_only: bool = False
     extra_name: str | None = None
     """String to be appended onto name of run."""
+    base_path: str | None = None
 
 
 Task = Literal["clm", "mt", "mlm"]

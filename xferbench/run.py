@@ -31,7 +31,12 @@ def get_env(rc: RunConfig, task: Literal["mt"]) -> RunEnvironment[config.Mt]:
 
 
 def get_env(rc: RunConfig, task: Task) -> RunEnvironment:
-    base_path = Path("unit-test/" if rc.unit_test else ".")
+    if rc.base_path:
+        base_path = Path(rc.base_path)
+    elif rc.unit_test:
+        base_path = Path("unit-test/")
+    else:
+        base_path = Path(".")
 
     if rc.save_prefix is None:
         match task:
@@ -357,7 +362,8 @@ def benchmark(rc: RunConfig) -> None:
         model_cfg=base_model_cfg,
         data_path=source_data_path,
     )
-    for el in config.get_target_languages(rc):
+    target_languages = ["da"] if rc.danish_only else config.get_target_languages(rc)
+    for el in target_languages:
         tune_tokenizer_path = env.base_save_path / f"{el}-tokenizer" / "tokenizer.json"
         tune_model_cfg = env.model_class(
             tokenizer_path=tune_tokenizer_path,
