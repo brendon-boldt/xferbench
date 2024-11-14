@@ -27,6 +27,7 @@ class RunConfig(PydanticModel):
     cpu_ok: bool = False
     danish_only: bool = False
     extra_name: str | None = None
+    result_path: str | None = None
     """String to be appended onto name of run."""
     base_path: str | None = None
 
@@ -121,6 +122,20 @@ class Clm(Model):
     n_head: int = 6
     n_layer: int = 6
     tokenizer_class: TokenizerClass = transformers.GPT2TokenizerFast
+
+
+class ClmReducedTest(Clm):
+    train_dataset_size: int = 10_000
+    tune_dataset_size: int = 10_000
+    n_train_epochs: int = 1
+    n_tune_epochs: int = 1
+
+
+class ClmReduced1(Clm):
+    train_dataset_size: int = 1_000_000
+    tune_dataset_size: int = 200_000
+    n_train_epochs: int = 1
+    n_tune_epochs: int = 2
 
 
 class ClmSmallVocab(Clm):

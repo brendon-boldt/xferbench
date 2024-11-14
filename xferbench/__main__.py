@@ -24,6 +24,7 @@ parser.add_argument("--danish-only", action="store_true")
 parser.add_argument("--base-path", type=str)
 parser.add_argument("--save-prefix", "--save", type=str)
 parser.add_argument("--extra-name", type=str)
+parser.add_argument("--result-path", type=str)
 parser.add_argument(
     "--config",
     "-c",

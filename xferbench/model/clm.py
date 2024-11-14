@@ -136,7 +136,9 @@ def tune_model(
 
 
 @common.check_complete
-def compute_model_score(*, data_path: Path, model_cfg: config.Clm) -> None:
+def compute_model_score(
+    *, data_path: Path, model_cfg: config.Clm, target_tokens: int = 1_000_000
+) -> None:
     result_file = model_cfg.save_path / "result.txt"
 
     checkpoint_path = common.get_checkpoint(model_cfg.load_path)
@@ -151,7 +153,6 @@ def compute_model_score(*, data_path: Path, model_cfg: config.Clm) -> None:
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     batch_encodings = tokenizer(raw_dataset["text"])
-    target_tokens = 1_000_000
 
     def gen():
         total = 0
