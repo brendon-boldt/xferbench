@@ -54,7 +54,7 @@ def init_model(*, model_cfg: config.Clm, data_path: Path) -> None:
 
 
 @common.check_complete
-def train_base_model(*, model_cfg: config.Clm, data_path: Path | None) -> None:
+def train_base_model(*, model_cfg: config.Clm, data_path: Path | None, fail_on_too_small: bool = False) -> None:
     hf_config = transformers.GPT2Config(
         vocab_size=model_cfg.vocab_size,
         n_head=model_cfg.n_head,
@@ -82,7 +82,7 @@ def train_base_model(*, model_cfg: config.Clm, data_path: Path | None) -> None:
         n_tokens_target=model_cfg.train_dataset_size,
         save_path=model_cfg.save_path,
         cache=True,
-        fail_on_too_small=False,
+        fail_on_too_small=fail_on_too_small,
     )
 
     data_collator = get_data_collator(tokenizer)

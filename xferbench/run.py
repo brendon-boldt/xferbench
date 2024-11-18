@@ -445,6 +445,7 @@ def benchmark_reduced(rc: RunConfig) -> None:
         clm.train_base_model(
             model_cfg=base_model_cfg,
             data_path=source_data_path,
+            fail_on_too_small=True,
         )
         eval_lang = "da"
         tune_tokenizer_path = (
