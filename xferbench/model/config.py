@@ -83,6 +83,7 @@ class Model(pydantic.BaseModel):
     # Measured in tokens
     train_dataset_size: int = 15_000_000
     tune_dataset_size: int = 2_000_000
+    eval_dataset_size: int = 1_000_000
 
     def init_dirs(self) -> None:
         self.save_path.mkdir(parents=True, exist_ok=True)
@@ -129,6 +130,7 @@ class ClmReducedTest(Clm):
     tune_dataset_size: int = 10_000
     n_train_epochs: int = 1
     n_tune_epochs: int = 1
+    eval_dataset_size: int = 10_000
 
 
 class ClmReduced1(Clm):
