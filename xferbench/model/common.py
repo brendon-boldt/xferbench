@@ -143,15 +143,16 @@ def get_tokenized_dataset(
                     f"Dataset was not large enough to satisfy target token requirement ({dataset_length} < {n_tokens_target})"
                 )
 
-            # During processing, at most block_size - 1 will be truncated per batch.
-            max_truncated_tokens = (len(dataset) // map_batch_size + 1) * (
-                block_size - 1
-            )
-            # Assume the worst case scenario where every batch truncates (block_size - 1) tokens.
-            n_repeats = n_tokens_target // (dataset_length - max_truncated_tokens) + 1
+        # During processing, at most block_size - 1 will be truncated per batch.
+        max_truncated_tokens = (len(dataset) // map_batch_size + 1) * (
+            block_size - 1
+        )
+        # Assume the worst case scenario where every batch truncates (block_size - 1) tokens.
+        n_repeats = n_tokens_target // (dataset_length - max_truncated_tokens) + 1
+        if n_repeats > 1:
             print(f"WARNING: dataset too small; repeating {n_repeats} times")
-            ds_list = [dataset.shuffle(seed=i) for i in range(n_repeats)]
-            dataset = datasets.concatenate_datasets(ds_list)
+        ds_list = [dataset.shuffle(seed=i) for i in range(n_repeats)]
+        dataset = datasets.concatenate_datasets(ds_list)
 
     def to_blocks(examples) -> dict:
         if "length" in examples:
