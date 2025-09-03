@@ -1,9 +1,10 @@
-from typing import Literal, cast, overload, Generic, TypeVar, Any
+from typing import Literal, assert_never, cast, overload, Generic, TypeVar, Any
 from pathlib import Path
 import sys
 
 import transformers  # type: ignore
 import pydantic
+import tokenizers  # type: ignore
 
 
 class PydanticModel(pydantic.BaseModel):
@@ -54,6 +55,19 @@ def get_target_languages(rc: RunConfig) -> list[str]:
 
 
 TokenizerClass = type[transformers.PreTrainedTokenizerFast]
+BpeMethod = Literal["char", "byte"]
+
+
+def get_bpe_class(
+    method: BpeMethod,
+) -> type[tokenizers.implementations.base_tokenizer.BaseTokenizer]:
+    match method:
+        case "byte":
+            return tokenizers.ByteLevelBPETokenizer
+        case "char":
+            return tokenizers.CharBPETokenizer
+        case _:
+            assert_never(method)
 
 
 class Model(pydantic.BaseModel):
@@ -76,6 +90,7 @@ class Model(pydantic.BaseModel):
     logging_steps: float = 1 / 100
     finetune_frozen: bool = False
     tokenizer_class: TokenizerClass
+    bpe_method: BpeMethod = "byte"
 
     # Measured in tokens
     train_dataset_size: int = 15_000_000
@@ -119,6 +134,10 @@ class Clm(Model):
     n_head: int = 6
     n_layer: int = 6
     tokenizer_class: TokenizerClass = transformers.GPT2TokenizerFast
+
+
+class ClmCharBpe(Clm):
+    bpe_method: BpeMethod = "char"
 
 
 class ClmSmallVocab(Clm):

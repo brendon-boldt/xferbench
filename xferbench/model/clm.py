@@ -38,7 +38,8 @@ def init_model(*, model_cfg: config.Clm, data_path: Path) -> None:
         else:
             data_iterator = iter([])
 
-        tokenizer = tokenizers.ByteLevelBPETokenizer()
+        tokenizer = config.get_bpe_class(model_cfg.bpe_method)()
+
         reference_tokenizer = transformers.GPT2TokenizerFast.from_pretrained("gpt2")
         n_special_tokens = len(
             {t for t in reference_tokenizer.special_tokens_map.values()}

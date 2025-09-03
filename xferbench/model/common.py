@@ -286,7 +286,7 @@ def make_tokenizer(
         else:
             data_iterator = iter([])
 
-        tokenizer = tokenizers.ByteLevelBPETokenizer()
+        tokenizer = config.get_bpe_class(model_cfg.bpe_method)()
 
         match model_cfg.tokenizer_class:
             case transformers.BartTokenizerFast:
