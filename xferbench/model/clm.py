@@ -72,8 +72,9 @@ def train_base_model(*, model_cfg: config.Clm, data_path: Path | None, fail_on_t
     raw_dataset = common.get_raw_dataset(data_path)
     raw_dataset.shuffle(seed=0)
 
-    # If we're dealing with the Wikipedia dataset
-    if "title" in raw_dataset.features:
+    # If we're dealing with the Wikipedia dataset; if we truncate the Hindi
+    # dataset, we won't have enough data.
+    if "title" in raw_dataset.features and data_path.name != "hi":
         raw_dataset = raw_dataset.select(range(min(len(raw_dataset), 15_000)))
 
     dataset = common.get_tokenized_dataset(
