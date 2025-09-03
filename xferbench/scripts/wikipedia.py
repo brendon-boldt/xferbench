@@ -7,7 +7,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument(
     "which",
     type=str,
-    choices=["eval", "all"],
+    choices=["eval", "all", "danish"],
     help='Which data split to download; either "eval" for the languages necessary to run XferBench or "all" for the eval languages and the baseline natural languages.',
 )
 args = ap.parse_args()
@@ -15,15 +15,15 @@ args = ap.parse_args()
 
 ds_path = "wikimedia/wikipedia"
 make_ds_name = lambda l: f"20231101.{l}"
-match args.which:
-    case "eval":
-        baseline_langs = []
-    case "all":
-        baseline_langs = ["fr", "es", "ru", "zh", "ar", "hi", "ko"]
-    case _:
-        raise ValueError()
+if args.which == "all":
+    baseline_langs = ["fr", "es", "ru", "zh", "ar", "hi", "ko"]
+else:
+    baseline_langs = []
 
-eval_langs = ["da", "eu", "fa", "fi", "he", "id", "ja", "kk", "ro", "ur"]
+if args.which == "danish":
+    eval_langs = ["da"]
+else:
+    eval_langs = ["da", "eu", "fa", "fi", "he", "id", "ja", "kk", "ro", "ur"]
 
 
 for lang in baseline_langs + eval_langs:

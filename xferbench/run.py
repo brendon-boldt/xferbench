@@ -3,6 +3,8 @@ from typing import Literal, cast, overload, Generic, TypeVar, Any
 from pathlib import Path
 import re
 import shutil
+import tempfile
+import shutil
 
 import pydantic
 import torch
@@ -31,7 +33,12 @@ def get_env(rc: RunConfig, task: Literal["mt"]) -> RunEnvironment[config.Mt]:
 
 
 def get_env(rc: RunConfig, task: Task) -> RunEnvironment:
-    base_path = Path("unit-test/" if rc.unit_test else ".")
+    if rc.base_path:
+        base_path = Path(rc.base_path)
+    elif rc.unit_test:
+        base_path = Path("unit-test/")
+    else:
+        base_path = Path(".")
 
     if rc.save_prefix is None:
         match task:
@@ -357,7 +364,8 @@ def benchmark(rc: RunConfig) -> None:
         model_cfg=base_model_cfg,
         data_path=source_data_path,
     )
-    for el in config.get_target_languages(rc):
+    target_languages = ["da"] if rc.danish_only else config.get_target_languages(rc)
+    for el in target_languages:
         tune_tokenizer_path = env.base_save_path / f"{el}-tokenizer" / "tokenizer.json"
         tune_model_cfg = env.model_class(
             tokenizer_path=tune_tokenizer_path,
@@ -384,6 +392,7 @@ def benchmark(rc: RunConfig) -> None:
         clm.compute_model_score(
             model_cfg=score_model_cfg,
             data_path=tune_data_path,
+            target_tokens=score_model_cfg.eval_dataset_size,
         )
 
         for p in tune_model_cfg.save_path.glob("checkpoint-*"):
@@ -410,6 +419,68 @@ def benchmark(rc: RunConfig) -> None:
     with results_path.open("w") as fo:
         json.dump(summary, fo, indent=2)
     print(f'Results summary in "{results_path}".')
+
+
+def benchmark_reduced(rc: RunConfig) -> None:
+    assert rc.source is not None, "Must set --source flag."
+    assert rc.result_path is not None
+    source_data_path = Path(rc.source)
+    env = get_env(rc, "clm")
+    eval_data_path = env.base_data_path / "eval/da"
+    assert eval_data_path.exists(), f"Cannot find {eval_data_path}"
+
+    env.base_save_path.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as tempdir:
+        base_source_save_path = Path(tempdir)
+
+        train_save_path = base_source_save_path / "train"
+        base_model_cfg = env.model_class(
+            save_path=train_save_path, tokenizer_path=train_save_path / "tokenizer.json"
+        )
+        base_model_cfg.save()
+
+        clm.init_model(
+            model_cfg=base_model_cfg,
+            data_path=source_data_path,
+        )
+        clm.train_base_model(
+            model_cfg=base_model_cfg,
+            data_path=source_data_path,
+            fail_on_too_small=True,
+        )
+        eval_lang = "da"
+        tune_tokenizer_path = (
+            env.base_save_path / f"{eval_lang}-tokenizer" / "tokenizer.json"
+        )
+        tune_model_cfg = env.model_class(
+            tokenizer_path=tune_tokenizer_path,
+            save_path=base_source_save_path / f"{eval_lang}-tune",
+            load_path=base_model_cfg.save_path,
+        )
+        tune_model_cfg.save()
+        clm.init_model(
+            model_cfg=tune_model_cfg,
+            data_path=env.base_data_path / "eval" / eval_lang,
+        )
+        tune_data_path = data_path = env.base_data_path / "eval" / eval_lang
+        clm.tune_model(
+            model_cfg=tune_model_cfg,
+            data_path=tune_data_path,
+        )
+        score_model_cfg = tune_model_cfg.model_copy()
+        score_model_cfg.load_path = tune_model_cfg.save_path
+        score_model_cfg.init_dirs()
+
+        clm.compute_model_score(
+            model_cfg=score_model_cfg,
+            data_path=tune_data_path,
+            target_tokens=score_model_cfg.eval_dataset_size,
+        )
+
+        for p in tune_model_cfg.save_path.glob("checkpoint-*"):
+            shutil.rmtree(p)
+
+        shutil.copy(score_model_cfg.save_path / "result.txt", rc.result_path)
 
 
 def generate_elcc_analysis(model_cfg: config.Clm, source_data_path: Path) -> dict:
