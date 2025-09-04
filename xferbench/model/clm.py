@@ -13,7 +13,7 @@ ModelType = TypeVar("ModelType", bound=config.Model)
 
 
 @common.check_complete
-def init_model(*, model_cfg: config.Clm, data_path: Path) -> None:
+def init_model(*, model_cfg: config.Clm, data_path: Path, is_eval_data: bool) -> None:
     raw_dataset = common.get_raw_dataset(data_path)
 
     # If we're using the Wikipedia dataset
@@ -38,6 +38,7 @@ def init_model(*, model_cfg: config.Clm, data_path: Path) -> None:
         else:
             data_iterator = iter([])
 
+        bpe_method = model_cfg.bpe_method if is_eval_data else "byte"
         tokenizer = config.get_bpe_class(model_cfg.bpe_method)()
 
         reference_tokenizer = transformers.GPT2TokenizerFast.from_pretrained("gpt2")
@@ -55,7 +56,9 @@ def init_model(*, model_cfg: config.Clm, data_path: Path) -> None:
 
 
 @common.check_complete
-def train_base_model(*, model_cfg: config.Clm, data_path: Path | None, fail_on_too_small: bool = False) -> None:
+def train_base_model(
+    *, model_cfg: config.Clm, data_path: Path | None, fail_on_too_small: bool = False
+) -> None:
     hf_config = transformers.GPT2Config(
         vocab_size=model_cfg.vocab_size,
         n_head=model_cfg.n_head,

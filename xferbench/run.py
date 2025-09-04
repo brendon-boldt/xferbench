@@ -89,7 +89,7 @@ def clm_init_model(rc: RunConfig) -> None:
     model_cfg.save()
     data_path = env.base_data_path / "eval" / rc.target
 
-    clm.init_model(model_cfg=model_cfg, data_path=data_path)
+    clm.init_model(model_cfg=model_cfg, data_path=data_path, is_eval_data=True)
 
 
 def clm_train_base_model(rc: RunConfig) -> None:
@@ -107,7 +107,7 @@ def clm_train_base_model(rc: RunConfig) -> None:
         data_path = None
     else:
         data_path = env.base_data_path / "baselines" / rc.source
-        clm.init_model(model_cfg=model_cfg, data_path=data_path)
+        clm.init_model(model_cfg=model_cfg, data_path=data_path, is_eval_data=False)
 
     clm.train_base_model(
         model_cfg=model_cfg,
@@ -359,6 +359,7 @@ def benchmark(rc: RunConfig) -> None:
         clm.init_model(
             model_cfg=base_model_cfg,
             data_path=source_data_path,
+            is_eval_data=False,
         )
     clm.train_base_model(
         model_cfg=base_model_cfg,
@@ -376,6 +377,7 @@ def benchmark(rc: RunConfig) -> None:
         clm.init_model(
             model_cfg=tune_model_cfg,
             data_path=env.base_data_path / "eval" / el,
+            is_eval_data=True,
         )
         tune_data_path = data_path = env.base_data_path / "eval" / el
         clm.tune_model(
@@ -442,6 +444,7 @@ def benchmark_reduced(rc: RunConfig) -> None:
         clm.init_model(
             model_cfg=base_model_cfg,
             data_path=source_data_path,
+            is_eval_data=False,
         )
         clm.train_base_model(
             model_cfg=base_model_cfg,
@@ -461,6 +464,7 @@ def benchmark_reduced(rc: RunConfig) -> None:
         clm.init_model(
             model_cfg=tune_model_cfg,
             data_path=env.base_data_path / "eval" / eval_lang,
+            is_eval_data=True,
         )
         tune_data_path = data_path = env.base_data_path / "eval" / eval_lang
         clm.tune_model(
