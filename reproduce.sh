@@ -4,13 +4,16 @@
 echo This script is intended to outline the steps to reproduce the main results in the paper.  In all likelihood, you will have to run this script line-by-line to troubleshoot any errors.  The script assumes a GNU/Linux environment. | fold -s
 echo
 echo -n Press Enter to continue.
-read foo
+read _placeholder
 
 set -xe
 
 
 
 ### Environment setup ###
+# Use the code from the time of publication.
+git checkout naacl24
+
 conda create --name xferbench --file environment.txt
 
 set +x
