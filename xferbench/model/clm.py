@@ -38,7 +38,7 @@ def init_model(*, model_cfg: config.Clm, data_path: Path, is_eval_data: bool) ->
         else:
             data_iterator = iter([])
 
-        bpe_method = model_cfg.bpe_method if is_eval_data else "byte"
+        bpe_method = "byte" if is_eval_data else model_cfg.bpe_method
         tokenizer = config.get_bpe_class(model_cfg.bpe_method)()
 
         reference_tokenizer = transformers.GPT2TokenizerFast.from_pretrained("gpt2")
