@@ -73,7 +73,7 @@ def train_base_model(
 
     tokenizer = load_tokenizer(model_cfg)
     raw_dataset = common.get_raw_dataset(data_path)
-    raw_dataset.shuffle(seed=0)
+    raw_dataset = raw_dataset.shuffle(seed=0)
 
     # If we're dealing with the Wikipedia dataset; if we truncate the Hindi
     # dataset, we won't have enough data.
