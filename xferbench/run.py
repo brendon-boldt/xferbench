@@ -490,7 +490,7 @@ def benchmark_reduced(rc: RunConfig) -> None:
 def generate_elcc_analysis(model_cfg: config.Clm, source_data_path: Path) -> dict:
     tokenizer = clm.load_tokenizer(model_cfg)
     raw_dataset = common.get_raw_dataset(source_data_path)
-    raw_dataset.shuffle(seed=0)
+    raw_dataset = raw_dataset.shuffle(seed=0)
 
     # If we're dealing with the Wikipedia dataset
     if "title" in raw_dataset.features:
