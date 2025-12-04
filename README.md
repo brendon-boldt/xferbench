@@ -48,9 +48,8 @@ Output will be in `save-clm/xferbench-my_dataset_corpus/results.json`.
 
 Don't have any data to try XferBench with?  No problem!  A tarball of the data
 used in the original data can be downloaded
-[here](http://patient.lti.cs.cmu.edu:12001/xferbench-paper-data.tar.gz).  We
-encourage you, though, to check out
-[ELCC](https://huggingface.co/datasets/bboldt/elcc) which is a more
+[here](https://doi.org/10.1184/R1/30777416).  We encourage you, though, to
+check out [ELCC](https://huggingface.co/datasets/bboldt/elcc) which is a more
 comprehensive collection of emergent language corpora with accompanying
 metadata.
 

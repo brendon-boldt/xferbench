@@ -23,8 +23,17 @@ set -x
 
 
 ### Setting up data ###
-wget http://patient.lti.cs.cmu.edu:12001/xferbench-paper-data.tar.gz
-tar xf xferbench-paper-data.tar.gz
+wget --user-agent "Mozilla/5.0" -O supp-data.zip \
+  https://kilthub.cmu.edu/ndownloader/articles/30777416/versions/1?folder_path=data
+unzip supp-data.zip -d supp-data
+while read -r x; do
+  dn=$(dirname "$x")
+  bn=$(basename "$x")
+  new_path="${dn#*/}/${bn#*_}"
+  mkdir -p "$(dirname "$new_path")"
+  cp "$x" "$new_path"
+done < <(find supp-data -type f)
+rm supp-data.zip
 # zstd is required to decompress some of the baseline datasets.
 type zstd
 # Decompress all zst archives
